@@ -1,5 +1,5 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
-import {ApiError} from "../utils/apiError.js";
+import {ApiError} from "../utils/ApiError.js";
 import { User } from "../models/user.model.js";
 import { uploadToCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
@@ -38,7 +38,7 @@ const registerUser = asyncHandler(async (req, res) => {
   }
 
   const avatar = await uploadToCloudinary(avatarLocalPath);
-  const coverImage = coverImageLocalPath ? await uploadToCloudinary(coverImageLocalPath) : null;
+  const coverImage = await uploadToCloudinary(coverImageLocalPath)
   
   if (!avatar) {
     throw new ApiError("upload avatar", 400);
@@ -54,16 +54,16 @@ const registerUser = asyncHandler(async (req, res) => {
     coverImage: coverImage?.url || ""
   });
 
+  // remove password and refresh token from response
   const createdUser = await User.findById(user._id).select("-password -refreshToken");
   if (!createdUser) {
     throw new ApiError("somthing went wrong while registering the user", 500);
   }
-  // remove password and refresh token from response
-  const { password: _, refreshToken, ...userData } = user.toObject();
+
 
   // return response
   return res.status(201).json(
-    new ApiResponse("User registered successfully", 201, userData)
+    new ApiResponse("User registered successfully", 201, createdUser)
   );
 })
 export { registerUser }

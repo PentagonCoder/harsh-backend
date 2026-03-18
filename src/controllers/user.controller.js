@@ -62,10 +62,8 @@ const registerUser = asyncHandler(async (req, res) => {
   const { password: _, refreshToken, ...userData } = user.toObject();
 
   // return response
-  res.status(201).json({
-    success: true,
-    message: "User registered successfully",
-    user: userData
-  });
+  return res.status(201).json(
+    new ApiResponse("User registered successfully", 201, userData)
+  );
 })
 export { registerUser }

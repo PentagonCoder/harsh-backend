@@ -53,10 +53,9 @@ const userSchema = new Schema(
 })
 
 // this middleware will run before saving user to the database it will hash the password before saving it to the database
-userSchema.pre("save", async function(next){
-  if(!this.isModified("password")) return next();
-  this.password = await bcrypt.hash(this.password, 10);
-  next();
+userSchema.pre("save", async function(){
+  if(!this.isModified("password")) return;
+  this.password = await bcrypt.hash(this.password, 10)
 })
 
 // this method compare password entered by user with hashed password stored in database

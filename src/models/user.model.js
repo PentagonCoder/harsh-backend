@@ -62,7 +62,7 @@ userSchema.pre("save", async function(){
 userSchema.methods.isPassawordcorrect = async function(Password){
   return await bcrypt.compare(Password, this.password);
 }
-
+// this method will generate access token and refresh token for the user
 userSchema.methods.generateAccessToken = function(){
   return jwt.sign(
     {

@@ -211,5 +211,158 @@ const reffreshAccessToken = asyncHandler(async (req, res) => {
 }
 })
 
+const changeCurrentPassword = asyncHandler(async (req, res) => {
+  //get the old password and new password from the request body
+  const { oldPassword, newPassword } = req.body;
 
-export { registerUser, loginUser, logoutUser, reffreshAccessToken };
+  const user = await User.findById(req.user._id);
+
+  //if user not found, return error -- this case should not happen because user is already authenticated and we have user id in the token, but we are adding this check for safety
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
+
+  //compare the old password with the hashed password in the database
+  const isOldPasswordValid = await user.isPassawordcorrect(oldPassword);
+
+  if (!isOldPasswordValid) {
+    throw new ApiError( 401, "Old password is incorrect");
+  }
+
+  //if old password is correct, hash the new password and save to database
+  user.password = newPassword;
+  await user.save();
+
+  //return response
+  return res
+  .status(200)
+  .json(new ApiResponse( 200, null, "Password changed successfully")
+  );
+})
+
+const getCuurentUser = asyncHandler(async (req, res) => {
+  return res
+  .status(200)
+  .json(
+    new ApiResponse(200, req.user, "Current user fetched successfully")
+  );
+
+  // const usserId = req.user._id;
+  
+  // const userProfile = await User.findById(usserId).select("-password -refreshToken");
+  
+  // if (!userProfile) {
+  //   throw new ApiError(404, "User not found");
+  // }
+  
+  // return res.status(200).json(
+  //   new ApiResponse(200, userProfile, "User profile fetched successfully")
+  // );
+})
+
+const updateAccountDetails = asyncHandler(async (req, res) => {
+  //get the user details from the request body, get user details from frontend
+  const { fullName, email, userName } = req.body;
+  
+  //validate the user details, validation - not empty
+  if(!fullName || !email || !userName){
+    throw new ApiError( 400, "All fields are required");
+  }
+
+  // 
+  const user = await User.findByIdAndUpdate(
+    req.user._id,
+    {
+      $set: {
+        fullName,
+        email,
+        userName: userName.toLowerCase()
+      }
+    },
+    { new: true }
+  ).select("-password");
+
+  return res
+  .status(200)
+  .json(
+    new ApiResponse(200, user, "Account details updated successfully")
+  );
+});
+
+const userUserAvatar = asyncHandler(async (req, res) => {
+
+  // get the avatar file from the request now we are using multer to handle file upload and multer will add the file to the request object as req.file or req.files depending on whether we are uploading single file or multiple files 
+  const avatarLocalPath = req.file?.path;
+
+  if (!avatarLocalPath) {
+    throw new ApiError( 400, "Avatar file is missing");
+  }
+
+  const avatar = await uploadToCloudinary(avatarLocalPath);
+
+  if (!avatar.url) {
+    throw new ApiError( 500, "Error while uploading avatar");
+  }
+
+  const user = await User.findByIdAndUpdate(
+    req.user._id,
+    {
+      $set: {
+        avatar: avatar.url
+      }
+    },
+    { new: true }
+  ).select("-password");
+ 
+  
+  return res
+  .status(200)
+  .json(
+    new ApiResponse(200, user, "Avatar updated successfully")
+  );
+})
+
+const updateCoverImage = asyncHandler(async (req, res) => {
+  
+  const coverImageLocalPath = req.file?.path;
+
+  if (!coverImageLocalPath) {
+    throw new ApiError( 400, "Cover image file is missing");
+  }
+
+  const coverImage = await uploadToCloudinary(coverImageLocalPath);
+
+  if (!coverImage.url) {
+    throw new ApiError( 500, "Error while uploading cover image");
+  }
+
+  const user = await User.findByIdAndUpdate(
+    req.user._id,
+    {
+      $set: {
+        coverImage: coverImage.url
+      }
+    },
+    { new: true }
+  ).select("-password");
+ 
+  
+  return res
+  .status(200)
+  .json(
+    new ApiResponse(200, user, "Cover image updated successfully")
+  );
+})
+
+export { 
+  registerUser, 
+  loginUser, 
+  logoutUser, 
+  reffreshAccessToken, 
+  changeCurrentPassword, 
+  getCuurentUser, 
+  updateAccountDetails,
+  userUserAvatar,
+  updateCoverImage
+
+};

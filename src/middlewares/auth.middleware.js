@@ -12,7 +12,7 @@ export const verifyJWT =asyncHandler(async (req, res, next) => {
     if (!token) {
       throw new ApiError( 401, "Unauthorized: No token provided User not authenticated");
     }
-    //this checks the token and get the user id from the token
+    //this checks the token validity and decodes the token to get the user information from the token
     const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
 
     //find the user in the database using the decodedtoken(user) id from the token and exclude the password and refresh token from the result

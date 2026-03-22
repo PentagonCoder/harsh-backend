@@ -354,6 +354,83 @@ const updateCoverImage = asyncHandler(async (req, res) => {
   );
 })
 
+const getUserChannelProfile = asyncHandler(async (req, res) => {
+  //get the user name from the request params
+  const { userName } = req.params;
+
+  if (!userName) {
+    throw new ApiError( 400, "User name is required");
+  }
+
+  const channel = await User.aggregate([
+    {
+      //match the user with the provided username in the request params
+      $match: {
+        userName: userName?.toLowerCase()
+      }
+    },
+    {
+      //lookup the subscribers of the channel
+      $lookup : {
+        from : "subscriptions",
+        localField : "_id",
+        foreignField : "channel",
+        as : "subscribers"
+      }
+    },
+    {
+      //lookup the channels to which the user is subscribed
+      $lookup : {
+        from : "subscriptions",
+        localField : "_id",
+        foreignField : "subscriber",
+        as : "subscribedTo"
+      }
+    },
+    {
+      //add the subscribers count and subscribedTo count to the user object using $addFields
+      $addFields : {
+        subscribersCount : {
+          $size : "$subscribers"
+        },
+        channelSubscribedToCount : {
+          $size : "$subscribedTo"
+        },
+        isSubscribed:{
+          $cond : {
+            if : {$in : [ mongoose.Types.ObjectId(req.user._id), "$subscribers.subscriber" ]},
+            then : true,
+            else : false
+          }
+        }
+      }
+    },
+    {
+      //project the required fields to return in the response
+      $project : {
+        fullName : 1,
+        userName : 1,
+        email : 1,
+        avatar : 1,
+        coverImage : 1,
+        subscribersCount : 1,
+        channelSubscribedToCount : 1,
+        isSubscribed : 1
+      } 
+    }
+  ])
+  if (!channel || channel.length === 0) {
+    throw new ApiError( 404, "Channel not found");
+  }
+  console.log("what channel returned: ",channel);
+
+  return res
+  .status(200)
+  .json(
+    new ApiResponse(200, channel[0], "Channel profile fetched successfully")
+  );
+})
+
 export { 
   registerUser, 
   loginUser, 
@@ -363,6 +440,7 @@ export {
   getCuurentUser, 
   updateAccountDetails,
   userUserAvatar,
-  updateCoverImage
+  updateCoverImage,
+  getUserChannelProfile
 
 };

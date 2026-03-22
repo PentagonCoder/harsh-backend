@@ -34,10 +34,10 @@ const userSchema = new Schema(
       type : String,
 
     },
-    watchlist : [
+    watchHistory : [
       {
         type : Schema.Types.ObjectId,
-        ref : "Movie"
+        ref : "Video",
       }
     ],
     password : {

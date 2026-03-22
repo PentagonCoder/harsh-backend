@@ -289,7 +289,7 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
   );
 });
 
-const userUserAvatar = asyncHandler(async (req, res) => {
+const updateUserAvatar = asyncHandler(async (req, res) => {
 
   // get the avatar file from the request now we are using multer to handle file upload and multer will add the file to the request object as req.file or req.files depending on whether we are uploading single file or multiple files 
   const avatarLocalPath = req.file?.path;
@@ -322,7 +322,7 @@ const userUserAvatar = asyncHandler(async (req, res) => {
   );
 })
 
-const updateCoverImage = asyncHandler(async (req, res) => {
+const updateUserCoverImage = asyncHandler(async (req, res) => {
   
   const coverImageLocalPath = req.file?.path;
 
@@ -489,8 +489,8 @@ export {
   changeCurrentPassword, 
   getCuurentUser, 
   updateAccountDetails,
-  userUserAvatar,
-  updateCoverImage,
+  updateUserAvatar,
+  updateUserCoverImage,
   getUserChannelProfile,
   getWatchHistory
 

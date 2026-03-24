@@ -362,10 +362,11 @@ const getUserChannelProfile = asyncHandler(async (req, res) => {
   if (!userName) {
     throw new ApiError( 400, "User name is required");
   }
-
+  console.log("username from params: ", userName);
   const channel = await User.aggregate([
     {
       //match the user with the provided username in the request params
+      //user finding 
       $match: {
         userName: userName?.toLowerCase()
       }
@@ -437,7 +438,7 @@ const getWatchHistory = asyncHandler(async(req,res)=>{
   const user = await User.aggregate([
     {
       $match : {
-        _id : mongoose.Types.ObjectId(req.user._id)
+        _id : new mongoose.Types.ObjectId(req.user._id)
       }
     },
     {

@@ -41,6 +41,8 @@ const videoSchema = new Schema(
     timestamps : true
   }
 )
+// Add pagination plugin to the schema to enable pagination functionality in the Video model. 
+// This allows us to easily paginate through video records when querying the database, improving performance and user experience when dealing with large datasets.
 videoSchema.plugin(mongooseAggregatePaginate);
 
 export const Video = mongoose.model("Video", videoSchema);

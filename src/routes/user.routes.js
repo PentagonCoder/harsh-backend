@@ -1,5 +1,16 @@
 import { Router } from "express";
-import { logoutUser, reffreshAccessToken, registerUser, changeCurrentPassword, getCuurentUser, updateAccountDetails, updateUserAvatar,updateUserCoverImage,getUserChannelProfile,getWatchHistory } from "../controllers/user.controller.js";
+import { 
+        logoutUser, 
+        reffreshAccessToken, 
+        registerUser, 
+        changeCurrentPassword, 
+        getCuurentUser, 
+        updateAccountDetails, 
+        updateUserAvatar,
+        updateUserCoverImage,
+        getUserChannelProfile,
+        getWatchHistory 
+      } from "../controllers/user.controller.js";
 import { upload } from "../middlewares/multer.middleware.js";
 import { loginUser } from "../controllers/user.controller.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
@@ -12,11 +23,10 @@ router.post('/register',
     { name: 'coverImage', maxCount: 1 }
   ]),
   //controller to handle the user registration
-  registerUser);
-
-router.post('/login', loginUser);
-
+registerUser);
+  
 //secured route to test the authentication middleware
+router.post('/login', loginUser);
 router.post('/logout', verifyJWT, logoutUser);
 router.post('/refresh-token', reffreshAccessToken);
 router.post('/change-password', verifyJWT, changeCurrentPassword);
